@@ -1,0 +1,52 @@
+/* Custom Styles for Print Layout and Pagination */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+/* Base Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6; /* Tailwind gray-100 */
+}
+.container {
+    max-width: 1000px;
+}
+
+/* Print-Specific Styles */
+@media print {
+    /* Hide controls and unnecessary elements when printing */
+    .no-print {
+        display: none !important;
+    }
+    /* Remove background, padding, shadow for clean printing */
+    body, .bg-white {
+        background: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    /* Table breaks and pagination controls */
+    table {
+        width: 100%;
+        page-break-inside: auto;
+    }
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+    thead {
+        display: table-header-group; /* Ensures header repeats on new pages */
+    }
+    /* Page margins */
+    @page {
+        margin: 0.5in;
+    }
+    /* Specific class to hide cells when printing in 'Summary View' mode */
+    .print-hidden-cell {
+        display: none !important;
+    }
+}
