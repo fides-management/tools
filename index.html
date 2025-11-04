@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIDES.M Professional Quotation Generator</title>
+    <title>FIDES.M Professional Bill Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom Styles (from the CSS block below) */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Tailwind gray-100 */
+            background-color: #f3f4f6;
         }
         .container {
             max-width: 1000px;
         }
 
-        /* Print-Specific Styles */
+        .print-only {
+            display: none !important;
+        }
+        
         @media print {
             .no-print {
                 display: none !important;
@@ -51,21 +53,25 @@
             body {
                 margin: 0;
             }
-            /* Ensures hidden columns remain hidden for summary view if printing in that mode */
             .print-hidden-cell {
+                display: none !important;
+            }
+            .print-only {
+                display: inline !important;
+            }
+            #grandTotalInput {
                 display: none !important;
             }
         }
     </style>
     <script>
-        // Tailwind configuration for custom colors to match FIDES.M logo
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'fides-green-dark': '#1C4933', // Darkest green from logo elements
-                        'fides-green-light': '#367B48', // Main green from logo elements
-                        'fides-accent-green': '#D1FAE5', // A very light green for backgrounds/accents
+                        'fides-green-dark': '#1C4933',
+                        'fides-green-light': '#367B48',
+                        'fides-accent-green': '#D1FAE5',
                     }
                 }
             }
@@ -81,29 +87,29 @@
                 <img src="logo.jpeg" alt="FIDES.M Logo" class="h-12 mr-4">
                 <div>
                     <h1 class="text-4xl font-extrabold text-fides-green-dark">QUOTATION</h1>
-                    <p class="text-sm text-gray-500 mt-1">Ref: <span id="quotationRef">QT-XXXX-XXX</span></p>
+                    <p class="text-sm text-gray-500 mt-1">Date: <span id="billDate"></span></p>
+                    <p class="text-sm text-gray-500 mt-1">Ref: <span id="billRef">QT-2025-02</span></p>
                 </div>
             </div>
             <div class="text-left md:text-right">
                 <h2 class="text-xl font-bold text-gray-800">FIDES Management</h2>
-                <!-- <p class="text-sm text-gray-600">No. 456, Kotte Road, Colombo 08, Sri Lanka</p> -->
-                 <p class="text-sm text-gray-600">www.fidesm.dev</p>
-                <p class="text-sm text-gray-600">Tel: +94 75 7180 225 | Email: info@fidesm.dev</p>
+                <p class="text-sm text-gray-600">www.fidesm.dev</p>
+                <p class="text-sm text-gray-600">Tel: +94 75 718 0225 | Email: info@fidesm.dev</p>
             </div>
         </header>
 
         <section class="mb-8 p-4 bg-fides-accent-green rounded-lg no-print">
-            <h3 class="text-lg font-semibold text-fides-green-dark mb-4">Client Information</h3>
+            <h3 class="text-lg font-semibold text-fides-green-dark mb-4">Customer Information</h3>
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 
-                <input type="text" id="clientName" placeholder="Client Name / Company" class="col-span-5 md:col-span-2 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="Future Innovations (Pvt) Ltd">
+                <input type="text" id="clientName" placeholder="Customer Name / Company" class="col-span-5 md:col-span-2 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="Future Innovations (Pvt) Ltd">
                 <input type="text" id="clientAddress" placeholder="Address" class="col-span-5 md:col-span-3 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="7, Temple Road, Nugegoda">
                 
                 <input type="text" id="clientContact" placeholder="Contact Person / Email" class="col-span-5 md:col-span-2 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="Ms. N. Perera | np@futureinnovations.com">
-                <input type="text" id="clientPhone1" placeholder="Phone Number 1 (e.g. 077-123-4567)" class="col-span-5 md:col-span-1 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="071-123-4567">
+                <input type="text" id="clientPhone1" placeholder="Phone Number 1" class="col-span-5 md:col-span-1 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="071-123-4567">
                 <input type="text" id="clientPhone2" placeholder="Phone Number 2 (Optional)" class="col-span-5 md:col-span-2 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="077-987-6543">
                 
-                <button onclick="saveClientInfo()" class="col-span-5 bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-2 px-4 rounded-lg transition duration-200 shadow-md">Update Client Details</button>
+                <button onclick="saveClientInfo()" class="col-span-5 bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-2 px-4 rounded-lg transition duration-200 shadow-md">Update Customer Details</button>
             </div>
         </section>
 
@@ -122,7 +128,7 @@
             <h3 class="text-lg font-semibold text-gray-700 mb-4">Add Product/Service</h3>
             <div class="grid grid-cols-5 gap-4">
                 <input type="text" id="productName" placeholder="Product/Service Name" class="col-span-5 md:col-span-2 p-2 border rounded-md" required>
-                <input type="number" id="unitPrice" placeholder="Unit Price (LKR)" class="col-span-2 md:col-span-1 p-2 border rounded-md" required min="0" step="0.01">
+                <input type="number" id="unitPrice" placeholder="Unit Price (LKR)" class="col-span-2 md:col-span-1 p-2 border rounded-md" min="0" step="0.01">
                 <input type="number" id="quantity" placeholder="Qty" class="col-span-1 md:col-span-1 p-2 border rounded-md" required min="1" step="1" value="1">
                 <button onclick="addProduct()" class="col-span-2 md:col-span-1 bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-2 rounded-lg transition duration-200 shadow-md">Add Item</button>
             </div>
@@ -140,8 +146,8 @@
                         <th class="px-6 py-3 text-right no-print">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="quotationTableBody" class="divide-y divide-gray-200 text-sm">
-                    </tbody>
+                <tbody id="billTableBody" class="divide-y divide-gray-200 text-sm">
+                </tbody>
                 <tfoot>
                     <tr class="h-4"></tr>
                     <tr class="border-t-2 border-gray-300">
@@ -149,14 +155,13 @@
                         <td id="subTotal" class="px-6 py-3 text-right font-bold text-gray-800">LKR 0.00</td>
                         <td class="no-print"></td>
                     </tr>
-                    <!-- <tr>
-                        <td colspan="4" class="px-6 py-3 text-right font-semibold text-gray-700">VAT (18%):</td>
-                        <td id="vatAmount" class="px-6 py-3 text-right font-bold text-gray-800">LKR 0.00</td>
-                        <td class="no-print"></td>
-                    </tr> -->
                     <tr class="border-t-4 border-fides-green-light bg-fides-accent-green">
-                        <td colspan="4" class="px-6 py-4 text-right text-xl font-extrabold text-fides-green-dark">GRAND TOTAL:</td>
-                        <td id="grandTotal" class="px-6 py-4 text-right text-xl font-extrabold text-fides-green-dark">LKR 0.00</td>
+                        <td colspan="4" class="px-6 py-4 text-right text-xl font-extrabold text-fides-green-dark">GRAND TOTAL</td>
+                        <td class="px-6 py-4 text-right text-xl font-extrabold text-fides-green-dark">
+                            LKR <input type="number" id="grandTotalInput" min="0" step="0.01" value="0.00" 
+                            class="inline w-32 border-none text-right font-extrabold bg-transparent focus:ring-0 p-0 text-fides-green-dark no-print">
+                            <span id="grandTotalDisplay" class="font-extrabold text-fides-green-dark print-only">LKR 0.00</span>
+                        </td>
                         <td class="no-print"></td>
                     </tr>
                 </tfoot>
@@ -167,8 +172,8 @@
             <button onclick="toggleSummaryView()" id="summaryButton" class="flex-1 md:flex-none bg-fides-green-dark hover:bg-fides-green-light text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-200">
                 Toggle Summary View (Show Totals Only)
             </button>
-            <button onclick="printQuotation()" class="flex-1 md:flex-none bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-200">
-                Generate & Print Quotation (2 Pages after 10 items)
+            <button onclick="printBill()" class="flex-1 md:flex-none bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-200">
+                Generate & Print Bill (2 Pages after 10 items)
             </button>
         </section>
 
@@ -176,7 +181,6 @@
             <h4 class="font-bold text-gray-700 mb-2">Terms & Conditions:</h4>
             <ul class="list-disc ml-4 space-y-1">
                 <li>This quotation is valid for thirty (30) days from the date of issue.</li>
-                <!-- <li>All prices are subject to 18% VAT unless otherwise stated.</li> -->
                 <li>Payment terms: 50% advance, 50% upon completion or delivery.</li>
                 <li>Delivery timelines are estimated and subject to confirmation.</li>
             </ul>
@@ -184,29 +188,28 @@
     </div>
 
     <script>
-        const VAT_RATE = 0.18; 
-        let quotationItems = [];
+        let billItems = [];
         let isSummaryView = false; 
+        let manualGrandTotal = null; 
 
         function formatCurrency(amount) {
-            return `LKR ${Number(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+            return `${Number(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
         }
         
-        /**
-         * Generates and displays the dynamic quotation reference number.
-         */
-        function generateQuotationRef() {
-            const currentYear = new Date().getFullYear();
-            // Generates a random number between 000 and 999
-            const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            
-            const ref = `QT-${currentYear}-${randomSuffix}`;
-            document.getElementById('quotationRef').textContent = ref;
+        function getTodayDateForBill() {
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = today.toLocaleDateString('en-US', options);
+            document.getElementById('billDate').textContent = formattedDate;
         }
 
-        /**
-         * Saves and updates the client information display.
-         */
+        function generateBillRef() {
+            const currentYear = new Date().getFullYear();
+            const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            const ref = `BL-${currentYear}-${randomSuffix}`;
+            document.getElementById('billRef').textContent = ref;
+        }
+
         function saveClientInfo() {
             const name = document.getElementById('clientName').value;
             const address = document.getElementById('clientAddress').value;
@@ -219,32 +222,22 @@
             document.getElementById('displayClientContact').textContent = `Attn: ${contact}`;
 
             const phone1DisplayElement = document.getElementById('displayClientPhone1');
-            if (phone1.trim() !== '') {
-                phone1DisplayElement.textContent = `Tel 1: ${phone1}`;
-                phone1DisplayElement.classList.remove('hidden'); 
-            } else {
-                phone1DisplayElement.classList.add('hidden'); 
-            }
+            phone1DisplayElement.textContent = phone1.trim() !== '' ? `Tel 1: ${phone1}` : '';
+            phone1DisplayElement.classList.toggle('hidden', phone1.trim() === '');
 
             const phone2DisplayElement = document.getElementById('displayClientPhone2');
-            if (phone2.trim() !== '') {
-                phone2DisplayElement.textContent = `Tel 2: ${phone2}`;
-                phone2DisplayElement.classList.remove('hidden'); 
-            } else {
-                phone2DisplayElement.classList.add('hidden'); 
-            }
+            phone2DisplayElement.textContent = phone2.trim() !== '' ? `Tel 2: ${phone2}` : '';
+            phone2DisplayElement.classList.toggle('hidden', phone2.trim() === '');
         }
 
-        /**
-         * Adds a new product/service item to the quotation list.
-         */
         function addProduct() {
             const name = document.getElementById('productName').value.trim();
-            const price = parseFloat(document.getElementById('unitPrice').value);
+            const priceValue = document.getElementById('unitPrice').value;
+            const price = parseFloat(priceValue) || 0; 
             const qty = parseInt(document.getElementById('quantity').value);
 
-            if (!name || isNaN(price) || price <= 0 || isNaN(qty) || qty <= 0) {
-                alert('Please enter valid Name, Unit Price, and Quantity.');
+            if (!name || isNaN(qty) || qty <= 0) {
+                alert('Please enter valid Name and Quantity.');
                 return;
             }
 
@@ -255,105 +248,104 @@
                 total: price * qty
             };
 
-            quotationItems.push(item);
-            renderQuotationTable();
+            billItems.push(item);
+            manualGrandTotal = null; 
+            renderBillTable();
 
-            // Clear input fields
             document.getElementById('productName').value = '';
             document.getElementById('unitPrice').value = '';
             document.getElementById('quantity').value = '1';
         }
 
-        /**
-         * Removes an item from the quotation list by index.
-         */
         function removeItem(index) {
-            quotationItems.splice(index, 1);
-            renderQuotationTable();
+            billItems.splice(index, 1);
+            manualGrandTotal = null; 
+            renderBillTable();
+        }
+        
+        function calculateTotals() {
+            let subTotal = billItems.reduce((sum, item) => sum + item.total, 0);
+            let grandTotal = subTotal;
+
+            if (manualGrandTotal !== null) {
+                grandTotal = manualGrandTotal;
+            }
+
+            document.getElementById('subTotal').textContent = `LKR ${formatCurrency(subTotal)}`;
+            
+            const grandTotalInput = document.getElementById('grandTotalInput');
+            const grandTotalDisplay = document.getElementById('grandTotalDisplay');
+            
+            grandTotalInput.value = grandTotal.toFixed(2);
+            grandTotalDisplay.textContent = 'LKR ' + formatCurrency(grandTotal);
+
+            updateSummaryViewUI();
+        }
+        
+        function updateTotalsFromGrandTotal(event) {
+            let newTotal = parseFloat(event.target.value);
+            
+            if (isNaN(newTotal) || newTotal < 0) {
+                manualGrandTotal = null;
+                calculateTotals();
+                return;
+            }
+
+            manualGrandTotal = newTotal;
+            calculateTotals();
         }
 
-        /**
-         * Renders the table rows and calculates totals.
-         */
-        function renderQuotationTable() {
-            const tableBody = document.getElementById('quotationTableBody');
+        function renderBillTable() {
+            const tableBody = document.getElementById('billTableBody');
             tableBody.innerHTML = '';
-            let subTotal = 0;
 
-            quotationItems.forEach((item, index) => {
+            billItems.forEach((item, index) => {
                 const row = tableBody.insertRow();
                 row.className = 'hover:bg-gray-50';
 
-                // Serial Number
                 row.insertCell().textContent = index + 1;
-                // Description
                 row.insertCell().textContent = item.name;
 
-                // Qty (Hidden/Shown based on Summary View)
                 const qtyCell = row.insertCell();
                 qtyCell.textContent = item.quantity;
                 qtyCell.className = 'px-6 py-2 text-right hidden lg:table-cell';
                 if (isSummaryView) qtyCell.classList.add('print-hidden-cell');
 
-                // Unit Price (Hidden/Shown based on Summary View)
                 const priceCell = row.insertCell();
-                priceCell.textContent = formatCurrency(item.unitPrice).replace('LKR ', '');
+                priceCell.textContent = formatCurrency(item.unitPrice);
                 priceCell.className = 'px-6 py-2 text-right hidden lg:table-cell';
                 if (isSummaryView) priceCell.classList.add('print-hidden-cell');
 
-                // Total
                 const totalCell = row.insertCell();
-                totalCell.textContent = formatCurrency(item.total).replace('LKR ', '');
+                totalCell.textContent = formatCurrency(item.total);
                 totalCell.className = 'px-6 py-2 text-right font-semibold text-gray-800';
 
-                // Actions (No-Print)
                 const actionCell = row.insertCell();
                 actionCell.className = 'px-6 py-2 text-right no-print';
-                actionCell.innerHTML = `<button onclick="removeItem(${index})" class="text-red-600 hover:text-red-900 font-bold text-lg leading-none">&times;</button>`;
-
-                subTotal += item.total;
+                actionCell.innerHTML = `<button onclick="removeItem(${index})" class="text-red-600 hover:text-red-900 font-bold text-lg leading-none">×</button>`;
             });
 
-            // Calculate totals
-            const vatAmount = subTotal * VAT_RATE;
-            const grandTotal = subTotal + vatAmount;
-
-            // Update footer totals
-            document.getElementById('subTotal').textContent = formatCurrency(subTotal);
-            document.getElementById('vatAmount').textContent = formatCurrency(vatAmount);
-            document.getElementById('grandTotal').textContent = formatCurrency(grandTotal);
-
-            updateSummaryViewUI();
+            calculateTotals();
         }
 
-        /**
-         * Toggles the display mode between detail and summary view.
-         */
         function toggleSummaryView() {
             isSummaryView = !isSummaryView;
-            renderQuotationTable(); // Re-render to apply new visibility rules
+            renderBillTable();
         }
 
-        /**
-         * Updates the UI elements based on the summary view state.
-         */
         function updateSummaryViewUI() {
             const summaryButton = document.getElementById('summaryButton');
-            const tableBody = document.getElementById('quotationTableBody');
+            const tableBody = document.getElementById('billTableBody');
 
-            // Toggle button text
             summaryButton.textContent = isSummaryView
                 ? 'Toggle Detailed View (Show Prices)'
                 : 'Toggle Summary View (Show Totals Only)';
 
-            // Hide/Show Quantity and Unit Price headers
             document.getElementById('headerQty').classList.toggle('hidden', isSummaryView);
             document.getElementById('headerPrice').classList.toggle('hidden', isSummaryView);
 
-            // Hide/Show Quantity and Unit Price cells in rows
             const rows = tableBody.getElementsByTagName('tr');
             for (let i = 0; i < rows.length; i++) {
-                // cells[2] is Qty, cells[3] is Unit Price (based on the original structure)
                 const qtyCell = rows[i].cells[2];
                 const priceCell = rows[i].cells[3];
                 if (qtyCell && priceCell) {
@@ -362,25 +354,27 @@
                 }
             }
 
-            // Update colspan for footer to maintain alignment (2 columns visible in summary, 4 in detail)
             const footerCells = document.querySelectorAll('tfoot tr td:nth-child(1)');
             footerCells.forEach(cell => {
                 cell.setAttribute('colspan', isSummaryView ? 2 : 4);
             });
         }
 
-        /**
-         * Triggers the browser print dialog.
-         */
-        function printQuotation() {
+        function printBill() {
             window.print();
         }
 
-        // Initialize display on load
         window.onload = () => {
-            saveClientInfo();       // Display initial client info
-            renderQuotationTable(); // Display initial empty table/totals
-            generateQuotationRef(); // Generate the dynamic reference number
+            saveClientInfo();
+            renderBillTable();
+            generateBillRef();
+            getTodayDateForBill();
+            
+            const grandTotalInput = document.getElementById('grandTotalInput');
+            if (grandTotalInput) {
+                grandTotalInput.addEventListener('change', updateTotalsFromGrandTotal);
+                calculateTotals();
+            }
         };
     </script>
 </body>
