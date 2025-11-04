@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIDES.M Professional Bill Generator</title>
+    <title>FIDES.M Professional Tax Invoice (A4 Preview)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
@@ -11,58 +11,75 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
+            font-size: 0.9rem; /* Smaller base font */
         }
+        
+        /* 🎨 **A4 On-Screen Preview Enforced** 🎨 */
         .container {
-            max-width: 1000px;
+            /* max-width: 1000px; <-- Removed max-width */
+            
+            /* **Set A4 Dimensions for on-screen view (210mm x 297mm)** */
+            width: 210mm;
+            height: 297mm; 
+            margin: 20px auto; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            padding: 15mm; /* 1.5cm margin on all sides */
+            box-sizing: border-box; 
+            overflow: auto; 
+            background-color: white; /* Ensure container background is white */
         }
 
         .print-only {
             display: none !important;
         }
         
+        /* ---------- A4 PRINT STYLES (UNCHANGED from previous revision) ---------- */
         @media print {
-            .no-print {
-                display: none !important;
-            }
-            body, .bg-white {
-                background: none !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            .container {
-                width: 100%;
-                max-width: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            table {
-                width: 100%;
-                page-break-inside: auto;
-            }
-            tr {
-                page-break-inside: avoid;
-                page-break-after: auto;
-            }
-            thead {
-                display: table-header-group;
-            }
             @page {
-                margin: 0.5in;
-            }
-            body {
+                size: A4; 
                 margin: 0;
             }
-            .print-hidden-cell {
-                display: none !important;
+
+            html, body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                font-size: 0.8rem;
             }
-            .print-only {
-                display: inline !important;
+
+            .container {
+                width: 210mm;
+                max-width: 210mm;
+                margin: 0 auto;
+                padding: 15mm; 
+                box-sizing: border-box;
+                page-break-after: always;
+                box-shadow: none;
             }
-            #grandTotalInput {
-                display: none !important;
+
+            /* Hide UI elements */
+            .no-print { display: none !important; }
+
+            /* Ensure table fits */
+            table { 
+                width: 100% !important;
+                page-break-inside: avoid;
             }
+            tr { page-break-inside: avoid; }
+
+            /* Hide input, show static text */
+            #grandTotalInput { display: none !important; }
+            .print-only { display: inline !important; }
+
+            /* Keep headers on every page */
+            thead { display: table-header-group; }
+
+            /* Hide detailed columns on print if in summary view */
+            .print-hidden-cell { display: none !important; }
         }
+        /* -------------------------------------- */
     </style>
     <script>
         tailwind.config = {
@@ -80,87 +97,83 @@
 </head>
 <body class="p-4 md:p-8">
 
-    <div id="app" class="container mx-auto bg-white rounded-xl shadow-2xl overflow-hidden p-6 md:p-10">
+    <div id="app" class="container mx-auto rounded-xl overflow-hidden p-6 md:p-10">
 
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-4 border-fides-green-light pb-4 mb-8">
-            <div class="flex items-center mb-4 md:mb-0">
-                <img src="logo.jpeg" alt="FIDES.M Logo" class="h-12 mr-4">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-4 border-fides-green-light pb-4 mb-6">
+            <div class="flex items-center mb-3 md:mb-0">
+                <img src="logo.jpeg" alt="FIDES.M Logo" class="h-10 mr-4"> 
                 <div>
-                    <h1 class="text-4xl font-extrabold text-fides-green-dark">QUOTATION</h1>
-                    <p class="text-sm text-gray-500 mt-1">Date: <span id="billDate"></span></p>
-                    <p class="text-sm text-gray-500 mt-1">Ref: <span id="billRef">QT-2025-02</span></p>
+                    <h1 class="text-3xl font-extrabold text-fides-green-dark">TAX INVOICE</h1>
+                    <p class="text-xs text-gray-500 mt-1">Date: <span id="billDate"></span></p>
+                    <p class="text-xs text-gray-500 mt-1">Bill No: <span id="billRef">BL-XXXX-XXX</span></p>
                 </div>
             </div>
-            <div class="text-left md:text-right">
-                <h2 class="text-xl font-bold text-gray-800">FIDES Management</h2>
-                <p class="text-sm text-gray-600">www.fidesm.dev</p>
-                <p class="text-sm text-gray-600">Tel: +94 75 718 0225 | Email: info@fidesm.dev</p>
+            <div class="text-left md:text-right text-sm">
+                <h2 class="text-lg font-bold text-gray-800">FIDES Management</h2>
+                <p class="text-xs text-gray-600">www.fidesm.dev</p>
+                <p class="text-xs text-gray-600">Tel: +94 75 718 0225 | Email: info@fidesm.dev</p>
             </div>
         </header>
 
-        <section class="mb-8 p-4 bg-fides-accent-green rounded-lg no-print">
-            <h3 class="text-lg font-semibold text-fides-green-dark mb-4">Customer Information</h3>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                
+        <section class="mb-6 p-3 bg-fides-accent-green rounded-lg no-print text-sm">
+            <h3 class="text-base font-semibold text-fides-green-dark mb-3">Customer Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
                 <input type="text" id="clientName" placeholder="Customer Name / Company" class="col-span-5 md:col-span-2 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="Future Innovations (Pvt) Ltd">
                 <input type="text" id="clientAddress" placeholder="Address" class="col-span-5 md:col-span-3 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="7, Temple Road, Nugegoda">
-                
                 <input type="text" id="clientContact" placeholder="Contact Person / Email" class="col-span-5 md:col-span-2 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="Ms. N. Perera | np@futureinnovations.com">
                 <input type="text" id="clientPhone1" placeholder="Phone Number 1" class="col-span-5 md:col-span-1 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="071-123-4567">
                 <input type="text" id="clientPhone2" placeholder="Phone Number 2 (Optional)" class="col-span-5 md:col-span-2 p-2 border border-fides-green-light rounded-md focus:ring-fides-green-light focus:border-fides-green-light" value="077-987-6543">
-                
-                <button onclick="saveClientInfo()" class="col-span-5 bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-2 px-4 rounded-lg transition duration-200 shadow-md">Update Customer Details</button>
+                <button onclick="saveClientInfo()" class="col-span-5 bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-2 px-4 rounded-lg transition duration-200 shadow-md text-sm">Update Customer Details</button>
             </div>
         </section>
 
-        <section class="mb-8">
-            <h3 class="text-base font-semibold text-gray-700 mb-2">Quotation For:</h3>
-            <div class="border border-gray-300 p-4 rounded-lg bg-gray-50">
-                <p id="displayClientName" class="text-xl font-bold text-gray-800">Future Innovations (Pvt) Ltd</p>
-                <p id="displayClientAddress" class="text-sm text-gray-600">7, Temple Road, Nugegoda</p>
-                <p id="displayClientContact" class="text-sm text-gray-600">Attn: Ms. N. Perera | np@futureinnovations.com</p>
-                <p id="displayClientPhone1" class="text-sm text-gray-600">Tel 1: 071-123-4567</p>
-                <p id="displayClientPhone2" class="text-sm text-gray-600">Tel 2: 077-987-6543</p>
+        <section class="mb-6">
+            <h3 class="text-sm font-semibold text-gray-700 mb-1">Bill To:</h3>
+            <div class="border border-gray-300 p-3 rounded-lg bg-gray-50 text-sm">
+                <p id="displayClientName" class="text-lg font-bold text-gray-800">Future Innovations (Pvt) Ltd</p>
+                <p id="displayClientAddress" class="text-xs text-gray-600">7, Temple Road, Nugegoda</p>
+                <p id="displayClientContact" class="text-xs text-gray-600">Attn: Ms. N. Perera | np@futureinnovations.com</p>
+                <p id="displayClientPhone1" class="text-xs text-gray-600">Tel 1: 071-123-4567</p>
+                <p id="displayClientPhone2" class="text-xs text-gray-600">Tel 2: 077-987-6543</p>
             </div>
         </section>
 
-        <section class="mb-8 p-4 bg-gray-100 rounded-lg no-print">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4">Add Product/Service</h3>
-            <div class="grid grid-cols-5 gap-4">
+        <section class="mb-6 p-3 bg-gray-100 rounded-lg no-print text-sm">
+            <h3 class="text-base font-semibold text-gray-700 mb-3">Add Product/Service</h3>
+            <div class="grid grid-cols-5 gap-3">
                 <input type="text" id="productName" placeholder="Product/Service Name" class="col-span-5 md:col-span-2 p-2 border rounded-md" required>
-                <input type="number" id="unitPrice" placeholder="Unit Price (LKR)" class="col-span-2 md:col-span-1 p-2 border rounded-md" min="0" step="0.01">
+                <input type="number" id="unitPrice" placeholder="Unit Price (Rs.)" class="col-span-2 md:col-span-1 p-2 border rounded-md" min="0" step="0.01">
                 <input type="number" id="quantity" placeholder="Qty" class="col-span-1 md:col-span-1 p-2 border rounded-md" required min="1" step="1" value="1">
-                <button onclick="addProduct()" class="col-span-2 md:col-span-1 bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-2 rounded-lg transition duration-200 shadow-md">Add Item</button>
+                <button onclick="addProduct()" class="col-span-2 md:col-span-1 bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-2 rounded-lg transition duration-200 shadow-md text-sm">Add Item</button>
             </div>
         </section>
 
-        <section class="mb-8 overflow-x-auto">
+        <section class="mb-6 overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-300">
                 <thead class="bg-fides-accent-green text-fides-green-dark uppercase text-xs tracking-wider">
                     <tr>
-                        <th class="px-6 py-3 text-left">#</th>
-                        <th class="px-6 py-3 text-left">Description</th>
-                        <th class="px-6 py-3 text-right hidden lg:table-cell" id="headerQty">Qty</th>
-                        <th class="px-6 py-3 text-right hidden lg:table-cell" id="headerPrice">Unit Price (LKR)</th>
-                        <th class="px-6 py-3 text-right">Total (LKR)</th>
-                        <th class="px-6 py-3 text-right no-print">Actions</th>
+                        <th class="px-3 py-2 text-left">#</th>
+                        <th class="px-3 py-2 text-left">Description</th>
+                        <th class="px-3 py-2 text-right hidden lg:table-cell" id="headerQty">Qty</th>
+                        <th class="px-3 py-2 text-right hidden lg:table-cell" id="headerPrice">Unit Price (Rs.)</th>
+                        <th class="px-3 py-2 text-right">Total (Rs.)</th>
+                        <th class="px-3 py-2 text-right no-print">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="billTableBody" class="divide-y divide-gray-200 text-sm">
-                </tbody>
+                <tbody id="billTableBody" class="divide-y divide-gray-200 text-sm"></tbody>
                 <tfoot>
                     <tr class="h-4"></tr>
                     <tr class="border-t-2 border-gray-300">
-                        <td colspan="4" class="px-6 py-3 text-right font-semibold text-gray-700">Subtotal:</td>
-                        <td id="subTotal" class="px-6 py-3 text-right font-bold text-gray-800">LKR 0.00</td>
+                        <td colspan="4" class="px-6 py-3 text-right font-semibold text-gray-700">Subtotal:</td> 
+                        <td id="subTotal" class="px-6 py-3 text-right font-bold text-gray-800">Rs. 0.00</td>
                         <td class="no-print"></td>
                     </tr>
                     <tr class="border-t-4 border-fides-green-light bg-fides-accent-green">
-                        <td colspan="4" class="px-6 py-4 text-right text-xl font-extrabold text-fides-green-dark">GRAND TOTAL</td>
-                        <td class="px-6 py-4 text-right text-xl font-extrabold text-fides-green-dark">
-                            LKR <input type="number" id="grandTotalInput" min="0" step="0.01" value="0.00" 
-                            class="inline w-32 border-none text-right font-extrabold bg-transparent focus:ring-0 p-0 text-fides-green-dark no-print">
-                            <span id="grandTotalDisplay" class="font-extrabold text-fides-green-dark print-only">LKR 0.00</span>
+                        <td colspan="4" class="px-6 py-4 text-lg font-extrabold text-fides-green-dark text-right">TOTAL AMOUNT DUE:</td>
+                        <td class="px-6 py-4 text-lg font-extrabold text-fides-green-dark text-right">
+                            Rs. <input type="number" id="grandTotalInput" min="0" step="0.01" value="0.00" 
+                                class="inline w-32 border-none text-right font-extrabold bg-transparent focus:ring-0 p-0 text-fides-green-dark no-print">
+                            <span id="grandTotalDisplay" class="font-extrabold text-fides-green-dark print-only">Rs. 0.00</span>
                         </td>
                         <td class="no-print"></td>
                     </tr>
@@ -168,21 +181,29 @@
             </table>
         </section>
 
-        <section class="flex flex-col md:flex-row justify-end gap-4 mt-8 no-print">
-            <button onclick="toggleSummaryView()" id="summaryButton" class="flex-1 md:flex-none bg-fides-green-dark hover:bg-fides-green-light text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-200">
+        <section class="flex flex-col md:flex-row justify-end gap-3 mt-6 no-print text-sm">
+            <button onclick="toggleSummaryView()" id="summaryButton" class="flex-1 md:flex-none bg-fides-green-dark hover:bg-fides-green-light text-white font-bold py-2 px-5 rounded-lg shadow-lg transition duration-200">
                 Toggle Summary View (Show Totals Only)
             </button>
-            <button onclick="printBill()" class="flex-1 md:flex-none bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-200">
-                Generate & Print Bill (2 Pages after 10 items)
+            <button onclick="printBill()" class="flex-1 md:flex-none bg-fides-green-light hover:bg-fides-green-dark text-white font-bold py-2 px-5 rounded-lg shadow-lg transition duration-200">
+                Print Bill (A4)
             </button>
         </section>
 
-        <footer class="mt-10 pt-4 border-t border-gray-300 text-xs text-gray-500">
-            <h4 class="font-bold text-gray-700 mb-2">Terms & Conditions:</h4>
+        <footer class="mt-8 pt-4 border-t border-gray-300 text-xs text-gray-500">
+            <div class="mb-3">
+                <h4 class="font-bold text-gray-700 mb-1">Company Details:</h4>
+                <ul class="list-disc ml-4 space-y-1">
+                    <li>VAT Registration No: **XXXXXXXX-XXXX** (Please verify)</li>
+                    <li>Company Registration No: **PV XXXXX**</li>
+                </ul>
+            </div>
+            
+            <h4 class="font-bold text-gray-700 mb-1">Payment Terms:</h4>
             <ul class="list-disc ml-4 space-y-1">
-                <li>This quotation is valid for thirty (30) days from the date of issue.</li>
-                <li>Payment terms: 50% advance, 50% upon completion or delivery.</li>
-                <li>Delivery timelines are estimated and subject to confirmation.</li>
+                <li>Payment is due within 15 days from the date of this Invoice.</li>
+                <li>All prices are in **Sri Lankan Rupees (Rs.)** and include applicable taxes unless specified otherwise.</li>
+                <li>Please remit payment to the specified bank account or contact us for other payment methods.</li>
             </ul>
         </footer>
     </div>
@@ -199,15 +220,13 @@
         function getTodayDateForBill() {
             const today = new Date();
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            const formattedDate = today.toLocaleDateString('en-US', options);
-            document.getElementById('billDate').textContent = formattedDate;
+            document.getElementById('billDate').textContent = today.toLocaleDateString('en-US', options);
         }
 
         function generateBillRef() {
             const currentYear = new Date().getFullYear();
             const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            const ref = `BL-${currentYear}-${randomSuffix}`;
-            document.getElementById('billRef').textContent = ref;
+            document.getElementById('billRef').textContent = `BL-${currentYear}-${randomSuffix}`;
         }
 
         function saveClientInfo() {
@@ -221,35 +240,24 @@
             document.getElementById('displayClientAddress').textContent = address;
             document.getElementById('displayClientContact').textContent = `Attn: ${contact}`;
 
-            const phone1DisplayElement = document.getElementById('displayClientPhone1');
-            phone1DisplayElement.textContent = phone1.trim() !== '' ? `Tel 1: ${phone1}` : '';
-            phone1DisplayElement.classList.toggle('hidden', phone1.trim() === '');
+            const p1 = document.getElementById('displayClientPhone1');
+            p1.textContent = phone1.trim() ? `Tel 1: ${phone1}` : '';
+            p1.classList.toggle('hidden', !phone1.trim());
 
-            const phone2DisplayElement = document.getElementById('displayClientPhone2');
-            phone2DisplayElement.textContent = phone2.trim() !== '' ? `Tel 2: ${phone2}` : '';
-            phone2DisplayElement.classList.toggle('hidden', phone2.trim() === '');
+            const p2 = document.getElementById('displayClientPhone2');
+            p2.textContent = phone2.trim() ? `Tel 2: ${phone2}` : '';
+            p2.classList.toggle('hidden', !phone2.trim());
         }
 
         function addProduct() {
             const name = document.getElementById('productName').value.trim();
-            const priceValue = document.getElementById('unitPrice').value;
-            const price = parseFloat(priceValue) || 0; 
+            const price = parseFloat(document.getElementById('unitPrice').value) || 0;
             const qty = parseInt(document.getElementById('quantity').value);
 
-            if (!name || isNaN(qty) || qty <= 0) {
-                alert('Please enter valid Name and Quantity.');
-                return;
-            }
+            if (!name || qty <= 0) { alert('Please enter valid Name and Quantity.'); return; }
 
-            const item = {
-                name: name,
-                unitPrice: price,
-                quantity: qty,
-                total: price * qty
-            };
-
-            billItems.push(item);
-            manualGrandTotal = null; 
+            billItems.push({ name, unitPrice: price, quantity: qty, total: price * qty });
+            manualGrandTotal = null;
             renderBillTable();
 
             document.getElementById('productName').value = '';
@@ -257,124 +265,104 @@
             document.getElementById('quantity').value = '1';
         }
 
-        function removeItem(index) {
-            billItems.splice(index, 1);
-            manualGrandTotal = null; 
-            renderBillTable();
-        }
-        
+        function removeItem(i) { billItems.splice(i,1); manualGrandTotal = null; renderBillTable(); }
+
         function calculateTotals() {
-            let subTotal = billItems.reduce((sum, item) => sum + item.total, 0);
-            let grandTotal = subTotal;
+            const subTotal = billItems.reduce((s,i)=>s+i.total,0);
+            const grandTotal = manualGrandTotal !== null ? manualGrandTotal : subTotal;
 
-            if (manualGrandTotal !== null) {
-                grandTotal = manualGrandTotal;
-            }
-
-            document.getElementById('subTotal').textContent = `LKR ${formatCurrency(subTotal)}`;
-            
-            const grandTotalInput = document.getElementById('grandTotalInput');
-            const grandTotalDisplay = document.getElementById('grandTotalDisplay');
-            
-            grandTotalInput.value = grandTotal.toFixed(2);
-            grandTotalDisplay.textContent = 'LKR ' + formatCurrency(grandTotal);
+            document.getElementById('subTotal').textContent = `Rs. ${formatCurrency(subTotal)}`;
+            const input = document.getElementById('grandTotalInput');
+            const disp = document.getElementById('grandTotalDisplay');
+            input.value = grandTotal.toFixed(2);
+            disp.textContent = 'Rs. ' + formatCurrency(grandTotal);
 
             updateSummaryViewUI();
         }
-        
-        function updateTotalsFromGrandTotal(event) {
-            let newTotal = parseFloat(event.target.value);
-            
-            if (isNaN(newTotal) || newTotal < 0) {
-                manualGrandTotal = null;
-                calculateTotals();
-                return;
-            }
 
-            manualGrandTotal = newTotal;
+        function updateTotalsFromGrandTotal(e) {
+            const v = parseFloat(e.target.value);
+            manualGrandTotal = (isNaN(v) || v < 0) ? null : v;
             calculateTotals();
         }
 
         function renderBillTable() {
-            const tableBody = document.getElementById('billTableBody');
-            tableBody.innerHTML = '';
+            const tbody = document.getElementById('billTableBody');
+            tbody.innerHTML = '';
+            billItems.forEach((it, idx) => {
+                const r = tbody.insertRow();
+                r.className = 'hover:bg-gray-50';
+                
+                r.insertCell().textContent = idx + 1;
+                r.cells[0].className = 'px-3 py-2 text-left';
+                
+                const descC = r.insertCell(); descC.textContent = it.name;
+                descC.className = 'px-3 py-2 text-left';
 
-            billItems.forEach((item, index) => {
-                const row = tableBody.insertRow();
-                row.className = 'hover:bg-gray-50';
+                const qtyC = r.insertCell(); qtyC.textContent = it.quantity;
+                qtyC.className = 'px-3 py-2 text-right hidden lg:table-cell';
+                if (isSummaryView) qtyC.classList.add('print-hidden-cell'); 
 
-                row.insertCell().textContent = index + 1;
-                row.insertCell().textContent = item.name;
+                const priceC = r.insertCell(); priceC.textContent = formatCurrency(it.unitPrice);
+                priceC.className = 'px-3 py-2 text-right hidden lg:table-cell';
+                if (isSummaryView) priceC.classList.add('print-hidden-cell');
 
-                const qtyCell = row.insertCell();
-                qtyCell.textContent = item.quantity;
-                qtyCell.className = 'px-6 py-2 text-right hidden lg:table-cell';
-                if (isSummaryView) qtyCell.classList.add('print-hidden-cell');
+                const totalC = r.insertCell(); totalC.textContent = formatCurrency(it.total);
+                totalC.className = 'px-3 py-2 text-right font-semibold text-gray-800';
 
-                const priceCell = row.insertCell();
-                priceCell.textContent = formatCurrency(item.unitPrice);
-                priceCell.className = 'px-6 py-2 text-right hidden lg:table-cell';
-                if (isSummaryView) priceCell.classList.add('print-hidden-cell');
-
-                const totalCell = row.insertCell();
-                totalCell.textContent = formatCurrency(item.total);
-                totalCell.className = 'px-6 py-2 text-right font-semibold text-gray-800';
-
-                const actionCell = row.insertCell();
-                actionCell.className = 'px-6 py-2 text-right no-print';
-                actionCell.innerHTML = `<button onclick="removeItem(${index})" class="text-red-600 hover:text-red-900 font-bold text-lg leading-none">×</button>`;
+                const actC = r.insertCell(); actC.className = 'px-3 py-2 text-right no-print';
+                actC.innerHTML = `<button onclick="removeItem(${idx})" class="text-red-600 hover:text-red-900 font-bold text-lg leading-none">&times;</button>`;
             });
-
             calculateTotals();
         }
 
-        function toggleSummaryView() {
-            isSummaryView = !isSummaryView;
-            renderBillTable();
+        function toggleSummaryView() { 
+            isSummaryView = !isSummaryView; 
+            renderBillTable(); 
+            updateSummaryViewUI();
         }
 
         function updateSummaryViewUI() {
-            const summaryButton = document.getElementById('summaryButton');
-            const tableBody = document.getElementById('billTableBody');
-
-            summaryButton.textContent = isSummaryView
-                ? 'Toggle Detailed View (Show Prices)'
-                : 'Toggle Summary View (Show Totals Only)';
+            const btn = document.getElementById('summaryButton');
+            btn.textContent = isSummaryView ? 'Toggle Detailed View (Show Prices)' : 'Toggle Summary View (Show Totals Only)';
 
             document.getElementById('headerQty').classList.toggle('hidden', isSummaryView);
             document.getElementById('headerPrice').classList.toggle('hidden', isSummaryView);
-
-            const rows = tableBody.getElementsByTagName('tr');
-            for (let i = 0; i < rows.length; i++) {
-                const qtyCell = rows[i].cells[2];
-                const priceCell = rows[i].cells[3];
-                if (qtyCell && priceCell) {
-                    qtyCell.classList.toggle('hidden', isSummaryView);
-                    priceCell.classList.toggle('hidden', isSummaryView);
+            
+            const rows = document.getElementById('billTableBody').rows;
+            for (let i=0; i<rows.length; i++) {
+                const qty = rows[i].cells[2], price = rows[i].cells[3];
+                if (qty && price) { 
+                    qty.classList.toggle('hidden', isSummaryView); 
+                    price.classList.toggle('hidden', isSummaryView); 
+                    qty.classList.toggle('print-hidden-cell', isSummaryView);
+                    price.classList.toggle('print-hidden-cell', isSummaryView);
                 }
             }
 
-            const footerCells = document.querySelectorAll('tfoot tr td:nth-child(1)');
-            footerCells.forEach(cell => {
-                cell.setAttribute('colspan', isSummaryView ? 2 : 4);
+            // Adjust colspan for the footer
+            const footerColspan = isSummaryView ? 2 : 4; 
+            document.querySelectorAll('tfoot tr td:nth-child(1)').forEach(td => {
+                td.colSpan = footerColspan;
             });
         }
 
-        function printBill() {
-            window.print();
-        }
+        function printBill() { window.print(); }
 
         window.onload = () => {
-            saveClientInfo();
-            renderBillTable();
-            generateBillRef();
+            // Add some sample data for a more meaningful initial view
+            billItems = [
+                { name: 'Software Development Consultation (10 hours)', unitPrice: 7500.00, quantity: 10, total: 75000.00 },
+                { name: 'Monthly Cloud Server Hosting Fee', unitPrice: 12500.00, quantity: 1, total: 12500.00 },
+                { name: 'Domain Registration (Annual)', unitPrice: 3500.00, quantity: 1, total: 3500.00 },
+            ];
+
+            saveClientInfo(); 
+            renderBillTable(); 
+            generateBillRef(); 
             getTodayDateForBill();
-            
-            const grandTotalInput = document.getElementById('grandTotalInput');
-            if (grandTotalInput) {
-                grandTotalInput.addEventListener('change', updateTotalsFromGrandTotal);
-                calculateTotals();
-            }
+            document.getElementById('grandTotalInput').addEventListener('change', updateTotalsFromGrandTotal);
+            calculateTotals();
         };
     </script>
 </body>
